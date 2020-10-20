@@ -3,7 +3,8 @@ const dotenv = require("dotenv");
 const dbcontext = require("./src/config/database")
 const appError = require("./src/utils/appError");
 
-const authRoute = require("./src/routes/auth")
+const authRoute = require("./src/routes/auth");
+const postRoute = require("./src/routes/post");
 const app = express();
 
 dotenv.config({ path: "./src/config/config.env" });
@@ -12,6 +13,7 @@ app.use(express.json())
 dbcontext();
 
 app.use("/api/v1/auth", authRoute);
+app.use("/api/v1/post", postRoute);
 
 // Error handling
 app.all("*", (req, res, next) => {
