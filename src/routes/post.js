@@ -7,7 +7,10 @@ const { getPosts,
         getmyPosts,
         getPost,
         updatePost,
-        deletePost
+        deletePost,
+        addlike,
+        removelike,
+        addComment
 } = require("../controllers/PostController");
 const {protect} = require("../middleware/auth")
 
@@ -24,5 +27,12 @@ router.route("/:id")
     .get(getPost)
     .patch(protect, updatePost)
     .delete(protect, deletePost)
+
+router.route("/like/:id").put(protect, addlike)
+router.route("/unlike/:id").put(protect, removelike)
+router.route("/comment/:id").put(protect, [
+    check("text", "text is required").not().isEmpty(),
+], addComment)
+
 
 module.exports = router
