@@ -2,7 +2,13 @@ const express = require("express")
 const router = express.Router();
 const { check } = require("express-validator")
 
-const {getPosts, addPost, getmyPosts }= require("../controllers/PostController")
+const { getPosts,
+        addPost,
+        getmyPosts,
+        getPost,
+        updatePost,
+        deletePost
+} = require("../controllers/PostController");
 const {protect} = require("../middleware/auth")
 
 router.route("/")
@@ -13,5 +19,10 @@ router.route("/")
     ], addPost)
 
 router.get("/me", protect, getmyPosts);
+
+router.route("/:id")
+    .get(getPost)
+    .patch(protect, updatePost)
+    .delete(protect, deletePost)
 
 module.exports = router

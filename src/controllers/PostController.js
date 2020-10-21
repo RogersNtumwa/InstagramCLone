@@ -2,6 +2,7 @@ const Post = require("../models/post");
 const {validationResult } = require("express-validator");
 
 const asyncHandler = require("../utils/asyncHandler")
+const appError = require("../utils/appError")
 
 // @desc   Get all posts
 // @route  GET /api/vi/POSTS
@@ -19,6 +20,22 @@ exports.getPosts = asyncHandler(async (req, res, next) => {
         Count:posts.length,
         data:posts
     })
+})
+
+// @desc   Get a post
+// @route  GET /api/vi/POSTS/id
+// @access   public
+
+exports.getPost = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const post = await Post.findOne({ _id: id });
+    if (!post) {
+        return next(new appError(`There is no such post with id ${id} on the server`, 404));
+    }
+    res.status(200).json({
+        status: "Success",
+        data: post
+    });
 })
 
 // @desc   CREATE NEW pOST
@@ -59,3 +76,49 @@ exports.getmyPosts = asyncHandler(async (req, res, next) => {
     })
     
 })
+
+
+// @desc   update Post
+// @route  patch /api/vi/bugs/:post_id
+// @access   private to only post owner
+exports.updatePost = asyncHandler( async (req, res, next) => {
+
+    let post = await Post.findById(req.params.id);
+    if (!post) {
+        return next(new appError(`There is no such post with id ${req.params.id} on the server`, 404));
+    }
+    else if (post.user.toString() !== req.user.id) {
+        return next(new appError("Only the post owner can update this post", 401))
+    }
+    post=await Post.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    res.send({
+      status: "Success",
+      data: post,
+    });
+
+});
+
+// @desc   update Post
+// @route  patch /api/vi/bugs/:post_id
+// @access   private to only post owner
+exports.deletePost = asyncHandler(async (req, res, next) => {
+    let post = await Post.findById(req.params.id);
+    if (!post) {
+        return next(new appError(`There is no such post with id ${req.params.id} on the server`, 404));
+    }
+    else if (post.user.toString() !== req.user.id) {
+        return next(new appError("Only the post owner can delete this post", 401))
+    }
+    post = await Post.findByIdAndRemove(req.params.id);
+    res.status(204).json({
+        status: "Success",
+        message:"Post deleted successfully"
+    })
+})
+
+// @desc like apost
+// route patch /api/v1/post/id
+// acess private
