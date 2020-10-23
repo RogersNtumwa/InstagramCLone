@@ -4,6 +4,7 @@ const {validationResult } = require("express-validator");
 const asyncHandler = require("../utils/asyncHandler")
 const appError = require("../utils/appError");
 const { post } = require("../routes/post");
+const User = require("../models/user")
 
 // @desc   Get all posts
 // @route  GET /api/vi/POSTS
@@ -102,8 +103,8 @@ exports.updatePost = asyncHandler( async (req, res, next) => {
 
 });
 
-// @desc   update Post
-// @route  patch /api/vi/bugs/:post_id
+// @desc   delete Post
+// @route  delete /api/vi/bugs/:post_id
 // @access   private to only post owner
 exports.deletePost = asyncHandler(async (req, res, next) => {
     let post = await Post.findById(req.params.id);
@@ -135,6 +136,8 @@ exports.addlike = asyncHandler(async (req, res, next) => {
     await post.save();
     res.json(post.likes)
 })
+
+
 // @desc unlike apost
 // route patch /api/v1/post/unlike/:id
 // acess private
@@ -175,3 +178,19 @@ exports.addComment = asyncHandler(async (req, res, next) => {
         data:post.comments
     })
 })
+
+// @desc   Get user Posts
+// @route  POST /api/vi/post/:user_id
+// @access   private
+exports.getUserPosts = asyncHandler(async (req, res, next) => {
+    const userPosts = await Post.find({ user: req.params.id });
+    if (userPosts.length < 1) {
+        return next(new appError("User has no posts yet", 400));
+    }
+    res.status(200).json({
+        status: "Success",
+        Count: userPosts.length,
+        data:userPosts
+    })
+})
+

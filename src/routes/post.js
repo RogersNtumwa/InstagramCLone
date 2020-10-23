@@ -10,9 +10,11 @@ const { getPosts,
         deletePost,
         addlike,
         removelike,
-        addComment
+        addComment,
+        getUserPosts
 } = require("../controllers/PostController");
-const {protect} = require("../middleware/auth")
+const {protect} = require("../middleware/auth");
+const { route } = require("./auth");
 
 router.route("/")
     .get(getPosts)
@@ -22,6 +24,7 @@ router.route("/")
     ], addPost)
 
 router.get("/me", protect, getmyPosts);
+router.get("/user/:id",protect, getUserPosts)
 
 router.route("/:id")
     .get(getPost)
